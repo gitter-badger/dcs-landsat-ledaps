@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<application xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" id="${artifactId}">
+  <jobTemplates>
+    <jobTemplate id="espa-proc">     
+      <streamingExecutable>/application/espa/bin/espa.sh</streamingExecutable>
+      <defaultParameters>
+        <parameter id="ledaps_eptoms">http://catalogue.terradue.int/catalogue/search/LEDAPS_TOMS/rdf</parameter>
+        <parameter id="ledaps_reanalysis">http://catalogue.terradue.int/catalogue/search/LEDAPS_REANALYSIS/rdf</parameter>
+        <parameter id="user" abstract="own earthexplorer.usgs.gov username.">fumoindiretto</parameter>
+        <parameter id="password" abstract="own earthexplorer.usgs.gov password.">FumoIndiretto#19</parameter>
+        <parameter id="toa_or_sr" abstract="toa or sr value. Default value is sr if empty or a different value between sr and toa.">toa</parameter>
+        <parameter id="spectral_indices" abstract="One or more value among ndvi,evi,savi,msavi,ndmi,nbr,nbr2 separated by comas.">ndvi,nbr</parameter>
+        <parameter id="bbox" title="Bounding Box" abstract="The bounding box parameter." scope="runtime" type="opensearch" target="geo:box">-7.19,38.93,-7.13,38.99</parameter>
+        <parameter id="startdate" title="Start date" abstract="Start date of the TOI." scope="runtime" type="opensearch" target="time:start">1991-07-01</parameter>
+        <parameter id="enddate" title="End date" abstract="End date of the TOI." scope="runtime" type="opensearch" target="time:end">1991-08-01</parameter>
+        <parameter id="rgb" abstract="list of band for rgb image creation. Possible band values  1,2,3,4,5,6,7. Need 3 values, if less then 3 values or empty node, no rgb creation. need">4,3,2</parameter>
+      </defaultParameters>
+      <defaultJobconf>
+        <property id="mapred.task.timeout">9900000000000</property>
+      </defaultJobconf>
+    </jobTemplate>
+  <jobTemplates>
+  <workflow id="espa-workflow" title="Spectral indices computing" abstract="computing the spectral indices on the landsat 5 images">
+    <workflowVersion>1.0</workflowVersion>
+    <node id="n-espa-proc">
+      <job id="espa-proc"/>
+      <sources>
+        <source refid="cas:series">http://10.16.10.19/catalogue/cwic/Landsat_TM/description</source>
+      </sources>
+      <parameters/>
+    </node>
+  </workflow>
+</application>
