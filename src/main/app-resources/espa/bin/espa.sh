@@ -6,7 +6,6 @@ export PATH=$PATH:/usr/local/bin
 # set the ledaps_aux_dir directory
 export LEDAPS_AUX_DIR=$TMPDIR/ledaps
 
-
 # exit code
 ERR_NOINPUT=1
 
@@ -20,9 +19,6 @@ lndcal=lndcal.
 lndsr=ldsr.
 TOA_BAND=toa
 dorgb=0
-red=""
-green=""
-blue=""
 EARTHEXPLORER=https://earthexplorer.usgs.gov/login/
 
 
@@ -49,10 +45,8 @@ indices="`ciop-getparam spectral_indices`"
 
 # rgb bands
 rgb_bands="`ciop-getparam rgb`"
-echo "rgb_bands = $rgb_bands"
-
 IFS=',' read -a array <<< "$rgb_bands"
-if [ ${array[@]}==3 ]
+if [ ${#array[@]}==3 ]
 	then
 	dorgb=1
 	red=${array[0]}
@@ -63,7 +57,16 @@ echo "rgb bands => red = $red green = $green blue = $blue"
 
 
 mkdir -p $TMPDIR/ledaps
-cp -r /application/data/ledaps/* $TMPDIR/ledaps/
+
+
+# symbolic link to common data file
+mkdir -p $TMPDIR/ledaps/data
+ln -s /usr/local/ledaps/data/CMGDEM.hdf $TMPDIR/ledaps/data/CMGDEM.hdf
+mkdir -p $TMPDIR/ledaps/data/L5_TM
+ln -s /usr/local/ledaps/data/L5_TM/gnew.dat $TMPDIR/ledaps/data/L5_TM/gnew.dat
+ln -s /usr/local/ledaps/data/L5_TM/gold_2003.dat $TMPDIR/ledaps/data/L5_TM/gold_2003.dat
+ln -s /usr/local/ledaps/data/L5_TM/gold.dat $TMPDIR/ledaps/data/L5_TM/gold.dat
+
 
 echo "ledaps dir = $TMPDIR/ledaps"
 
@@ -140,21 +143,19 @@ do
 	spectral_indices --xml=$datasetfilename$xml $indicesParameters
 
 	# build rgb file
-	#if [ $dorgb==1 ]	
-	#	then
-	#	convert_espa_to_gtif --xml=$datasetfilename$xml --gtif=$datasetfilename
-	#	redBand=$datasetfilename_B$red.TIF
-	#	greenBand=$datasetfilename_B$green.TIF
-	#	blueBand=$datasetfilename_B$blue.TIF
-	#	vrtFile=$datasetfilename.vrt
-	#	pngFile=$datasetfilename.png
-	#	#tifFile=$datasetfilename.TIF
-	#	#gdal_translate $vrtFile $datasetfilename.tif
-	#	gdalbuildvrt $vrtFile -separate $redBand $greenBand $blueBand
-	#	gdal_translate -of PNG $vrtFile $pngFile
-	#	img=$TMPDIR/data/$pngFile
-	#	ciop-publish $img
-	#fi
+	if [ $dorgb==1 ]	
+		then
+		convert_espa_to_gtif --xml=$datasetfilename$xml --gtif=$datasetfilename
+		redBand=$datasetfilename"_B"$red.TIF
+		greenBand=$datasetfilename"_B"$green.TIF
+		blueBand=$datasetfilename"_B"$blue.TIF
+		vrtFile=$datasetfilename.vrt
+		pngFile=$datasetfilename.png
+		gdalbuildvrt $vrtFile -separate $redBand $greenBand $blueBand
+		gdal_translate -of PNG $vrtFile $pngFile
+		img=$TMPDIR/data/$pngFile
+		ciop-publish $img
+	fi
 	
 	# publish sr file	
 	srFileList=`ls *_sr_*`
