@@ -38,7 +38,6 @@ elif [ $band != $TOA_BAND ]
 	then
 	band="sr"
 fi
-echo $band" band"
 
 # retrieve the spectral indices
 indices="`ciop-getparam spectral_indices`"
@@ -53,22 +52,16 @@ if [ ${#array[@]}==3 ]
 	green=${array[1]}
 	blue=${array[2]}
 fi
-echo "rgb bands => red = $red green = $green blue = $blue"
-
 
 mkdir -p $TMPDIR/ledaps
 
-
-# symbolic link to common data file
+# symbolic link to common data files
 mkdir -p $TMPDIR/ledaps/data
 ln -s /usr/local/ledaps/data/CMGDEM.hdf $TMPDIR/ledaps/data/CMGDEM.hdf
 mkdir -p $TMPDIR/ledaps/data/L5_TM
 ln -s /usr/local/ledaps/data/L5_TM/gnew.dat $TMPDIR/ledaps/data/L5_TM/gnew.dat
 ln -s /usr/local/ledaps/data/L5_TM/gold_2003.dat $TMPDIR/ledaps/data/L5_TM/gold_2003.dat
 ln -s /usr/local/ledaps/data/L5_TM/gold.dat $TMPDIR/ledaps/data/L5_TM/gold.dat
-
-
-echo "ledaps dir = $TMPDIR/ledaps"
 
 # execute login 
 curl -k -XPOST -c cookie --data "username=$USERNAME&password=$PASSWORD&rememberMe=1" $EARTHEXPLORER
@@ -93,14 +86,10 @@ do
 	
 	mkdir -p $TMPDIR/data
 	mkdir -p $TMPDIR/data/$datasetfilename
-	
-	echo "DIR $TMPDIR/data created"
-	echo "DIR $TMPDIR/data/$datasetfilename created"
-	
+
     link=`ciop-casmeta -f "dclite4g:onlineResource" "$input"`
     ciop-log "INFO" "retrieve link = $link"   
 
-    #curl -k -XPOST -c cookie --data "username=$USERNAME&password=$PASSWORD&rememberMe=1" $EARTHEXPLORER
     retrieved=`curl -L -b  cookie $link > $TMPDIR/data/$datasetfilename.tar.gz`
     ciop-log "INFO" "retrieved $datasetfilename.tar.gz file"
 
@@ -128,7 +117,6 @@ do
 	do_ledaps.py -f $datasetfilename$xml
 
 	ciop-log "INFO" "Spectral indices computing"
-	
 	indicesParameters=" "
 	IFS=',' read -a array <<< "$indices"
     for element in "${array[@]}"
@@ -145,40 +133,53 @@ do
 	# build rgb file
 	if [ $dorgb==1 ]	
 		then
-		convert_espa_to_gtif --xml=$datasetfilename$xml --gtif=$datasetfilename
-		redBand=$datasetfilename"_B"$red.TIF
-		greenBand=$datasetfilename"_B"$green.TIF
-		blueBand=$datasetfilename"_B"$blue.TIF
-		vrtFile=$datasetfilename.vrt
-		pngFile=$datasetfilename.png
+		#convert_espa_to_gtif --xml=$datasetfilename$xml --gtif=$datasetfilename
+		redBand=$TMPDIR/data/$datasetfilename/$datasetfilename"_B"$red.TIF
+		greenBand=$TMPDIR/data/$datasetfilename/$datasetfilename"_B"$green.TIF
+		blueBand=$TMPDIR/data/$datasetfilename/$datasetfilename"_B"$blue.TIF
+		vrtFile=$TMPDIR/data/$datasetfilename/$datasetfilename.vrt
+		pngFile=$TMPDIR/data/$datasetfilename/$datasetfilename.png
 		gdalbuildvrt $vrtFile -separate $redBand $greenBand $blueBand
 		gdal_translate -of PNG $vrtFile $pngFile
-		img=$TMPDIR/data/$pngFile
-		ciop-publish $img
+		ciop-publish -m $pngFile
 	fi
-	
-	# publish sr file	
-	srFileList=`ls *_sr_*`
+		
+	# publish sr .hdr file	
+	srFileList=`ls *_sr_*hdr`
 	for i in $srFileList
 		do
-			sr_file=$TMPDIR/data/$i
-			ciop-publish $sr_file
+			sr_file=$TMPDIR/data/$datasetfilename/$i
+			ciop-publish -m $sr_file
+		done
+	# publish sr .img file	
+	srFileList=`ls *_sr_*img`
+	for i in $srFileList
+		do
+			sr_file=$TMPDIR/data/$datasetfilename/$i
+			ciop-publish -m $sr_file
 		done
 
 	# publish toa file
     if [ $band == $TOA_BAND ]
     	then
-    	toaFileList=`ls *_toa_*`
-		echo "toa: $toaFileList"
+
+    	# publish toa .hdr file	
+    	toaFileList=`ls *_toa_*hdr`
 		for i in $toaFileList
 			do
-				toa_file=$TMPDIR/data/$i
-				ciop-publish $toa_file
+				toa_file=$TMPDIR/data/$datasetfilename/$i
+				ciop-publish -m $toa_file
+			done
+		# publish toa .img file	
+		toaFileList=`ls *_toa_*img`
+		for i in $toaFileList
+			do
+				toa_file=$TMPDIR/data/$datasetfilename/$i
+				ciop-publish -m $toa_file
 			done
     fi
 
 	ciop-log "INFO" "$filename computation done"
-
 done	
 
 exit 0
