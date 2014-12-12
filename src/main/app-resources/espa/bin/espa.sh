@@ -130,56 +130,50 @@ do
     ciop-log "INFO" "Executing: spectral_indices --xml=$datasetfilename$xml $indicesParameters"
 	spectral_indices --xml=$datasetfilename$xml $indicesParameters
 
+	mkdir -p $TMPDIR/data/$datasetfilename/$datasetfilename
 	# build rgb file
 	if [ $dorgb==1 ]	
 		then
-		#convert_espa_to_gtif --xml=$datasetfilename$xml --gtif=$datasetfilename
-		redBand=$TMPDIR/data/$datasetfilename/$datasetfilename"_B"$red.TIF
-		greenBand=$TMPDIR/data/$datasetfilename/$datasetfilename"_B"$green.TIF
-		blueBand=$TMPDIR/data/$datasetfilename/$datasetfilename"_B"$blue.TIF
+		convert_espa_to_gtif --xml=$datasetfilename$xml --gtif=$datasetfilename
+
+
+		redBand=$TMPDIR/data/$datasetfilename/$datasetfilename"_sr_band"$red.tif
+		greenBand=$TMPDIR/data/$datasetfilename/$datasetfilename"_sr_band"$green.tif
+		blueBand=$TMPDIR/data/$datasetfilename/$datasetfilename"_sr_band"$blue.tif
+		if [ $band != $TOA_BAND ]
+			then
+			echo "Creating rgb from atmospheric correction analysis"
+			ciop-log "INFO" "Creating rgb from atmospheric correction analysis"
+			redBand=$TMPDIR/data/$datasetfilename/$datasetfilename"_toa_band"$red.tif
+			greenBand=$TMPDIR/data/$datasetfilename/$datasetfilename"_toa_band"$green.tif
+			blueBand=$TMPDIR/data/$datasetfilename/$datasetfilename"_toa_band"$blue.tif
+		else
+			echo "Creating rgb from sr analysis"
+			ciop-log "INFO" "Creating rgb from sr analysis"
+		fi
+		#ciop-log "INFO" "Using redBand=$redBand"
+		#ciop-log "INFO" "Using greenBand=$greenBand"
+		#ciop-log "INFO" "Using blueBand=$blueBand"
+		
 		vrtFile=$TMPDIR/data/$datasetfilename/$datasetfilename.vrt
 		pngFile=$TMPDIR/data/$datasetfilename/$datasetfilename.png
 		gdalbuildvrt $vrtFile -separate $redBand $greenBand $blueBand
 		gdal_translate -of PNG $vrtFile $pngFile
-		ciop-publish -m $pngFile
+		echo "saving $pngFile file "
+		cp $TMPDIR/data/$datasetfilename/$pngFile $TMPDIR/data/$datasetfilename/$datasetfilename/
 	fi
-		
-	# publish sr .hdr file	
-	srFileList=`ls *_sr_*hdr`
-	for i in $srFileList
-		do
-			sr_file=$TMPDIR/data/$datasetfilename/$i
-			ciop-publish -m $sr_file
-		done
-	# publish sr .img file	
-	srFileList=`ls *_sr_*img`
-	for i in $srFileList
-		do
-			sr_file=$TMPDIR/data/$datasetfilename/$i
-			ciop-publish -m $sr_file
-		done
+	
+	# save image files 
+	echo "saving all processed image file "
+	cp *_sr_*hdr $TMPDIR/data/$datasetfilename/$datasetfilename/
+	cp *_sr_*img $TMPDIR/data/$datasetfilename/$datasetfilename/
+	cp *_toa_*hdr $TMPDIR/data/$datasetfilename/$datasetfilename/
+	cp *_toa_*img $TMPDIR/data/$datasetfilename/$datasetfilename/
+	
+	# publish all data
+	ciop-publish -m -r $TMPDIR/data/$datasetfilename/$datasetfilename
+	ciop-log "INFO" "$filename computation done. Data saved"
 
-	# publish toa file
-    if [ $band == $TOA_BAND ]
-    	then
-
-    	# publish toa .hdr file	
-    	toaFileList=`ls *_toa_*hdr`
-		for i in $toaFileList
-			do
-				toa_file=$TMPDIR/data/$datasetfilename/$i
-				ciop-publish -m $toa_file
-			done
-		# publish toa .img file	
-		toaFileList=`ls *_toa_*img`
-		for i in $toaFileList
-			do
-				toa_file=$TMPDIR/data/$datasetfilename/$i
-				ciop-publish -m $toa_file
-			done
-    fi
-
-	ciop-log "INFO" "$filename computation done"
 done	
 
 exit 0
