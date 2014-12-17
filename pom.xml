@@ -4,26 +4,26 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.terradue.ciop.app</groupId>
-	<artifactId>dcs-espa</artifactId>
+	<artifactId>dcs-landsat-ledaps</artifactId>
 	<packaging>pom</packaging>
-	<name>espa</name>
-	<description>dcs-espa</description>
+	<name>dcs-landsat-ledaps</name>
+	<description>dcs-landsat-ledaps</description>
 	<version>0.1-SNAPSHOT</version>
-<!--
+
 	<scm>
-		<connection>scm:git:git@github.com:Terradue/dcs-r-gbifsst.git</connection>
-		<developerConnection>scm:git:git@github.com:Terradue/dcs-r-gbifsst.git</developerConnection>
-		<url>https://github.com/Terradue/dcs-r-gbifsst</url>
+		<connection>scm:git:git@github.com:Terradue/dcs-landsat-ledaps</connection>
+		<developerConnection>scm:git:git@github.com:Terradue/dcs-landsat-ledaps.git</developerConnection>
+		<url>https://github.com/Terradue/dcs-landsat-ledaps</url>
 		<tag>HEAD</tag>
 	</scm>
--->
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.build.resourceEncoding>UTF-8</project.build.resourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<maven.deploy.skip>true</maven.deploy.skip>
 		<github.global.server>github</github.global.server>
-		<github.site.repositoryName>eowb-cckp</github.site.repositoryName>
+		<github.site.repositoryName>dcs-landsat-ledaps</github.site.repositoryName>
 		<github.site.repositoryOwner>Terradue</github.site.repositoryOwner>
 	</properties>
 
@@ -57,13 +57,13 @@
 				<configuration>
 					<filesets>
 						<fileset>
-							<directory>/application/espa</directory>
+							<directory>/application</directory>
 							<includes>
 								<include>**/*</include>
 							</includes>
-							<excludes>
+							<!--<excludes>
       							<exclude>share/**</exclude>
-							</excludes>
+							</excludes>-->
 							<followSymlinks>false</followSymlinks>
 						</fileset>
 					</filesets>
