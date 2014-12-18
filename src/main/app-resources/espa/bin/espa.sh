@@ -18,13 +18,15 @@ function cleanExit () {
   local msg=""
   case "$retval" in
     $SUCCESS) msg="Processing successfully concluded";;
-    $ERR_NOMASTER) msg="Master reference not provided";;
-    $ERR_NOMASTERWKT) msg="Master WKT not retrieved";;
-    $ERR_NOMASTERFILE) msg="Master not retrieved to local node";;
-    $ERR_NODEM) msg="DEM not retrieved";;
-    $ERR_AUX) msg="Failed to retrieve auxiliary and/or orbital data";;
+    $ERR_LS_DOWNLOAD) msg="Couldn't retrieve the Landsat product";;
+    $ERR_NCEP_DOWNLOAD) msg="Couldn't retrieve the NCEP data";;
+    $ERR_TOMS_DOWNLOAD) msg="Couldn't retrieve the TOMS data";;
+    $ERR_CONVERT_ESPA) msg="Failed to ingest the Landsat data";;
+    $ERR_LEDAPS) msg="Failed to process the LEDAPS";;
+    $ERR_INDICES) msg="Failed to process the vegetation indices";;
     $ERR_GEOCODE) msg="Failed to geocode products";;
-    $ERR_NOSLAVEFILE) msg="Slave not retrieved to local node";;
+    $ERR_GDAL_VRT) msg="Gdal failed VRT";;
+    $ERR_GDAL_TL_PNG) msg="Gdal failed to generate the RGB png";;
     *) msg="Unknown error";;
   esac
 
