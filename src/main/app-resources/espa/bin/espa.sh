@@ -2,6 +2,7 @@
 
 # define the exit codes
 SUCCESS=0
+ERR_USGS_LOGIN=5
 ERR_LS_DOWNLOAD=10
 ERR_NCEP_DOWNLOAD=11
 ERR_TOMS_DOWNLOAD=12
@@ -18,6 +19,7 @@ function cleanExit () {
   local msg=""
   case "$retval" in
     $SUCCESS) msg="Processing successfully concluded";;
+    $ERR_USGS_LOGIN) msg="Failed to login on USGS";;
     $ERR_LS_DOWNLOAD) msg="Couldn't retrieve the Landsat product";;
     $ERR_NCEP_DOWNLOAD) msg="Couldn't retrieve the NCEP data";;
     $ERR_TOMS_DOWNLOAD) msg="Couldn't retrieve the TOMS data";;
@@ -37,50 +39,8 @@ function cleanExit () {
 }
 trap cleanExit EXIT
 
-#set -x
-# Landsat 5 process. ESPA alghoritms test
-# add /usr/local/bin to the PATH
-export PATH=$PATH:/usr/local/bin
-# set the ledaps_aux_dir directory
-export LEDAPS_AUX_DIR=$TMPDIR/ledaps
-
 # source the ciop functions (e.g. ciop-log)
 source ${ciop_job_include}
-
-#TOA_BAND=toa
-dorgb=0
-doveg=0
-
-EARTHEXPLORER=https://earthexplorer.usgs.gov/login/
-
-# retrieve the eptoms catalogue for auxiliay files
-ledaps_eptoms="`ciop-getparam ledaps_eptoms`"
-# retrieve the reanalysis catalogue for auxiliay files
-ledaps_reanalysis="`ciop-getparam ledaps_reanalysis`"
-# retrieve EARTHEXPLORER credentials
-USERNAME="`ciop-getparam user`"
-PASSWORD="`ciop-getparam password`"
-
-# retrieve the spectral indices
-indices="`ciop-getparam spectral_indices`"
-[ -n "$indices" ] && doveg=1
-
-# rgb bands
-rgb_bands="`ciop-getparam rgb`"
-[ -n $rgb_bands ] && dorgb=1
-
-mkdir -p $TMPDIR/ledaps
-
-# symbolic link to common data files
-mkdir -p $TMPDIR/ledaps/data
-ln -s /usr/local/ledaps/data/CMGDEM.hdf $TMPDIR/ledaps/data/CMGDEM.hdf
-mkdir -p $TMPDIR/ledaps/data/L5_TM
-ln -s /usr/local/ledaps/data/L5_TM/gnew.dat $TMPDIR/ledaps/data/L5_TM/gnew.dat
-ln -s /usr/local/ledaps/data/L5_TM/gold_2003.dat $TMPDIR/ledaps/data/L5_TM/gold_2003.dat
-ln -s /usr/local/ledaps/data/L5_TM/gold.dat $TMPDIR/ledaps/data/L5_TM/gold.dat
-
-# execute login 
-curl -s -k -XPOST -c cookie --data "username=$USERNAME&password=$PASSWORD&rememberMe=1" $EARTHEXPLORER
 
 function getAux() {
   local dataset=$1
@@ -199,6 +159,47 @@ function rgb() {
   return 0
 }
 
+function initenv() {
+  mkdir -p $TMPDIR/ledaps
+  # symbolic link to common data files
+  mkdir -p $TMPDIR/ledaps/data
+  ln -s /usr/local/ledaps/data/CMGDEM.hdf $TMPDIR/ledaps/data/CMGDEM.hdf
+  mkdir -p $TMPDIR/ledaps/data/L5_TM
+  ln -s /usr/local/ledaps/data/L5_TM/gnew.dat $TMPDIR/ledaps/data/L5_TM/gnew.dat
+  ln -s /usr/local/ledaps/data/L5_TM/gold_2003.dat $TMPDIR/ledaps/data/L5_TM/gold_2003.dat
+  ln -s /usr/local/ledaps/data/L5_TM/gold.dat $TMPDIR/ledaps/data/L5_TM/gold.dat
+}
+# add /usr/local/bin to the PATH
+export PATH=$PATH:/usr/local/bin
+# set the ledaps_aux_dir directory
+export LEDAPS_AUX_DIR=$TMPDIR/ledaps
+
+# retrieve the eptoms catalogue for auxiliay files
+ledaps_eptoms="`ciop-getparam ledaps_eptoms`"
+# retrieve the reanalysis catalogue for auxiliay files
+ledaps_reanalysis="`ciop-getparam ledaps_reanalysis`"
+# retrieve USGS credentials
+USERNAME="`ciop-getparam user`"
+PASSWORD="`ciop-getparam password`"
+# retrieve the spectral indices
+indices="`ciop-getparam spectral_indices`"
+# rgb bands
+rgb_bands="`ciop-getparam rgb`"
+
+[ -n "$indices" ] && doveg=1 || doveg=0
+[ -n "$rgb_bands" ] && dorgb=1 || dorgb=0
+
+EARTHEXPLORER=https://earthexplorer.usgs.gov/login/
+
+# initiate the environment
+initenv
+
+# create a cookies to download the Landsat products  
+curl -s -k -XPOST -c cookie --data "username=$USERNAME&password=$PASSWORD&rememberMe=1" $EARTHEXPLORER
+res=$?
+[ "$res" != "0" ] && exit $ERR_USGS_LOGIN
+
+# set the working dir
 target=$TMPDIR/data
 
 while read input
