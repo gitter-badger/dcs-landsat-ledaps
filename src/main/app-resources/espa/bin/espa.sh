@@ -263,7 +263,7 @@ do
   ciop-log "INFO" "$filename computation done. Data saved"
 
   # clean up
-  rm -f $lsfolder
+  rm -fr $lsfolder
 done
 	
 exit 0
