@@ -127,6 +127,7 @@
 					<requires>
 						<require>espa-common</require>
 						<require>ledaps</require>
+						<require>spectral-indices</require>
 					</requires>
 					<needarch>true</needarch>
 				</configuration>

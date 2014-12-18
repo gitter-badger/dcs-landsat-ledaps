@@ -4,11 +4,10 @@
     <jobTemplate id="espa-proc">     
       <streamingExecutable>/application/espa/bin/espa.sh</streamingExecutable>
       <defaultParameters>
-        <parameter id="ledaps_eptoms">http://catalogue.terradue.int/catalogue/search/LEDAPS_TOMS/rdf</parameter>
-        <parameter id="ledaps_reanalysis">http://catalogue.terradue.int/catalogue/search/LEDAPS_REANALYSIS/rdf</parameter>
+        <parameter id="ledaps_eptoms">http://catalogue.terradue.int/catalogue/search/LEDAPS_TOMS/description</parameter>
+        <parameter id="ledaps_reanalysis">http://catalogue.terradue.int/catalogue/search/LEDAPS_REANALYSIS/description</parameter>
         <parameter id="user" abstract="own earthexplorer.usgs.gov username."></parameter>
         <parameter id="password" abstract="own earthexplorer.usgs.gov password."></parameter>
-        <parameter id="toa_or_sr" abstract="toa or sr value. Default value is sr if empty or a different value between sr and toa.">toa</parameter>
         <parameter id="spectral_indices" abstract="One or more value among ndvi,evi,savi,msavi,ndmi,nbr,nbr2 separated by comas.">ndvi,nbr</parameter>
         <parameter id="bbox" title="Bounding Box" abstract="The bounding box parameter." scope="runtime" type="opensearch" target="geo:box">-7.19,38.93,-7.13,38.99</parameter>
         <parameter id="startdate" title="Start date" abstract="Start date of the TOI." scope="runtime" type="opensearch" target="time:start">1991-07-01</parameter>
