@@ -12,7 +12,7 @@
         <parameter id="bbox" title="Bounding Box" abstract="The bounding box parameter." scope="runtime" type="opensearch" target="geo:box">-7.19,38.93,-7.13,38.99</parameter>
         <parameter id="startdate" title="Start date" abstract="Start date of the TOI." scope="runtime" type="opensearch" target="time:start">1991-07-01</parameter>
         <parameter id="enddate" title="End date" abstract="End date of the TOI." scope="runtime" type="opensearch" target="time:end">1991-08-01</parameter>
-        <parameter id="rgb" abstract="list of band for rgb image creation. Possible band values  1,2,3,4,5,6,7. Need 3 values, if less then 3 values or empty node, no rgb creation. need">5,4,3</parameter>
+        <parameter id="rgb" abstract="list of band for rgb image creation. Possible band values  1,2,3,4,5,6,7. Need 3 values, if less then 3 values or empty node, no rgb creation. need">5,4,3;4,3,2;3,2,1</parameter>
       </defaultParameters>
       <defaultJobconf>
         <property id="mapred.task.timeout">9900000000000</property>
