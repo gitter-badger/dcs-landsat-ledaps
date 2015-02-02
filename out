@@ -5,4 +5,4 @@
   at Terradue.OpenSearch.Request.HttpOpenSearchRequest.GetResponse () [0x00000] in <filename unknown>:0 
 [ERROR]   at System.Net.HttpWebRequest.EndGetResponse (IAsyncResult asyncResult) [0x00000] in <filename unknown>:0 
   at System.Net.HttpWebRequest.GetResponse () [0x00000] in <filename unknown>:0 
-  at Terradue.OpenSearch.Request.HttpOpenSearchRequest.GetResponse () [0x00000] in <filename unknown>:1 
+  at Terradue.OpenSearch.Request.HttpOpenSearchRequest.GetResponse () [0x00000] in <filename unknown>:34
